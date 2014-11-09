@@ -1,0 +1,12 @@
+{
+  "name": "cloudGame",
+  "version": "1.0.0",
+  "main": "server.js",
+  "dependencies": {
+    "express": "*",
+    "mongoose": "^3.8.8",
+    "body-parser": "^1.0.2",
+    "express-hbs": "*",
+    "socket.io" : "1.*" 
+  }
+}
