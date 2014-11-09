@@ -96,9 +96,11 @@ app.get('/station/:stationId/player/:playerId/', function(req, res) {
   //checks station status and send user an alert
   var stationId = req.params.stationId;  // station Number
   var playerId = req.params.playerId;
-
   var checkInData = [playerId,stationId];
+  console.log("Player "+  playerId + " at station "+ stationId + ".");
   io.sockets.emit( 'playerCheckIn', checkInData);    //send to player client on phone stationID + playerStock
+  res.end("Player "+  playerId + " at station "+ stationId + ".");
+
 });
 //this is the route to the players individualized status page
 
@@ -119,11 +121,14 @@ app.get('/addStation/:stationId', function(req, res){
     newStation.stationId = stationId;
     newStation.save();
     console.log("Station " + stationId + " created.");
+    res.end("Station " + stationId + " created.");
+
 });
 
 app.get('/stationsUpdate', function(req, res){
   stationsUpdate();
     //console.log(allStationsData);
+    res.end("Stations Update");
 });
 app.get('/addPlayer/:playerId', function(req, res){
     var playerId = req.params.playerId;
@@ -132,14 +137,14 @@ app.get('/addPlayer/:playerId', function(req, res){
     newPlayer.playerId = playerId;
     newPlayer.save();
     console.log("Player " + playerId + " created.");
+    res.end("Player " + playerId + " created.");
 });
 app.get('/playersUpdate', function(req, res){
   playersUpdate();
-    //console.log(allStationsData);
-});
+   res.end("Players Update");});
 app.get('/resetGame', function(req, res){
   resetGame();
-    //console.log(allStationsData);
+  res.end("Game Reset")
 });
 
 
@@ -201,24 +206,29 @@ var calcPickUpPoints = function(inventory, bonus){
 //update Local player and station data to send to Client
 
 var playersUpdate = function(){
+ allPlayersData = [];      
  for (var i = 0; i < numPlayers; i++ ){
     thisPlayer = [];
     Player.findOne({ 'playerId': i }, function (err, player) {
         if (err) return handleError(err);
         thisPlayer.push(player.playerId);
         thisPlayer.push(player.points);
-         thisPlayer.push(player.stock);
+        thisPlayer.push(player.stock);
         allPlayersData.push(thisPlayer);
         thisPlayer = [];
+       if (allPlayersData.length>numPlayers-1){
+        console.log(allPlayersData);
+       io.sockets.emit( 'playerUpdate', allPlayersData);    //every player and their points
+        }
     });
   }
-  console.log(allPlayersData);
- io.sockets.emit( 'playerUpdate', allPlayersData);     // every player and their points
- allPlayersData = [];
 }
 
+
+//figure out why its not in order
+
 var stationsUpdate = function(){
-  //allStationsData = [];
+  allStationsData = [];
   for (var i = 0; i < numStations; i++ ){
     thisStation = [];
     Station.findOne({ 'stationId': i }, function (err, station) {
@@ -228,26 +238,25 @@ var stationsUpdate = function(){
         thisStation.push(stationBonusOn[station.stationId]);
         thisStation.push(stationBonus[station.stationId]);  
         allStationsData.push(thisStation); 
-        thisStation = [];                       //allStationData[i][3] = station Bonus Amount
+        thisStation = [];      
+        if (allStationsData.length>4){
+         console.log(allStationsData);
+         io.sockets.emit('stationUpdate', allStationsData);    // every station and its inventory  
+        }                 
     });
-    if (i == numStations-1){
-     console.log(allStationsData);
-     io.sockets.emit('stationUpdate', allStationsData);    // every station and its inventory  
-     allStationsData = [];
-    }
   }
 }
 
 //this should be called every 5 sec or so
 var bonusUpdate = function(){
   for (var i = 0; i<numStations; i++){
-    if (stationBonusOn[i] == false){
-        if (allStationsData[i][1] == 0 || allStationsData[i][1] == 5){
+    if (allStationsData[i][1] == 0 || allStationsData[i][1] == 5){
           stationBonusOn[i] = true;
-        }else{
-          stationBonusOn[i] = false;
-        }
     }else{
+          stationBonusOn[i] = false;
+          stationBonus[i] = 0;
+    }
+    if (stationBonusOn[i] == true){
         stationBonus[i] = stationBonus[i] + numPlayers;
         for (var j = 0; j<numPlayers; j++){
           Player.findOne({ 'playerId': j }, function (err, player) {
