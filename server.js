@@ -1,8 +1,13 @@
 var express = require('express');
 var bodyParser = require('body-parser')
 var app = express();
-
+var hbs = require('express-hbs');
 app.use(bodyParser());
+app.engine('hbs', hbs.express3({
+  partialsDir: __dirname + '/views/partials'
+}));
+app.set('view engine', 'hbs');
+app.set('views', __dirname + '/views');
 
 if (!module.parent) {
   app.listen(3000);
@@ -19,16 +24,10 @@ io.on('connection', function(socket){
   console.log('a user connected');
 });
 
-// io.on('connection', function(socket){
-//   socket.on('chat message', function(msg){
-//     io.emit('chat message', msg);
-//   });
-// });
-
-
 //======================================================
 //===============CONNECT TO DATA BASE===================
 //======================================================
+
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://dansakidavid:cloudcom@ds051960.mongolab.com:51960/cloudcommuting');
 
@@ -89,31 +88,6 @@ app.get('/', function(req, res) {
     res.send('Hello World');
 });
 
-
-//this is the route the station Yun calls when a player drops off or picks up
-
-app.get('/station/:stationId/player/:playerId/', function(req, res) {
-  //checks station status and send user an alert
-  var stationId = req.params.stationId;  // station Number
-  var playerId = req.params.playerId;
-  var checkInData = [playerId,stationId];
-  console.log("Player "+  playerId + " at station "+ stationId + ".");
-  io.sockets.emit( 'playerCheckIn', checkInData);    //send to player client on phone stationID + playerStock
-  res.end("Player "+  playerId + " at station "+ stationId + ".");
-
-});
-//this is the route to the players individualized status page
-
-// app.get('/:playerID', function(req, res){
-//     var playerID = req.params[0];
-//     req.render(
-//     {
-//         playerID : playerid
-//     });
-// });
-
-//{{playerID}}
-
 app.get('/addStation/:stationId', function(req, res){
     var stationId = req.params.stationId;
     console.log(stationId);
@@ -130,6 +104,7 @@ app.get('/stationsUpdate', function(req, res){
     //console.log(allStationsData);
     res.end("Stations Update");
 });
+
 app.get('/addPlayer/:playerId', function(req, res){
     var playerId = req.params.playerId;
     console.log(playerId);
@@ -139,16 +114,42 @@ app.get('/addPlayer/:playerId', function(req, res){
     console.log("Player " + playerId + " created.");
     res.end("Player " + playerId + " created.");
 });
+
 app.get('/playersUpdate', function(req, res){
   playersUpdate();
-   res.end("Players Update");});
+   res.end("Players Update");
+ });
+
 app.get('/resetGame', function(req, res){
   resetGame();
   res.end("Game Reset")
 });
 
 
+//======================================================
+//====================YUN ROUTE++++=====================
+//======================================================
 
+app.get('/station/:stationId/player/:playerId/', function(req, res) {
+  //checks station status and send user an alert
+  var stationId = req.params.stationId;  // station Number
+  var playerId = req.params.playerId;
+  var checkInData = [playerId,stationId];
+  console.log("Player "+  playerId + " at station "+ stationId + ".");
+  io.sockets.emit( 'playerCheckIn', checkInData);    //send to player client on phone stationID + playerStock
+  res.end("Player "+  playerId + " at station "+ stationId + ".");
+
+});
+//this is the route to the players individualized status page
+
+app.get('/player/:playerId', function(req, res){
+    var playerID = req.params.playerId;
+    res.render('home', {
+      mPlayers : allPlayersData,
+      mStations: allStationsData,
+      mPlayer  :playerID
+    });
+});
 
 
 //How we calcuate how many points players get for dropping off and picking up
@@ -302,8 +303,6 @@ var resetGame = function(){
   stationsUpdate();
   playersUpdate();
 }
-
-
 
 
 //checkin Listener

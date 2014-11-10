@@ -1,11 +1,15 @@
 {{!< ../views/layouts/main}}
-
+<h1>I am Player {{mPlayer}}  </h1>
 <h1>Player Scores</h1>
-<body>
-
+<body>{{#each mPlayers}}
+	<h3>{{this}}</h3>
+	{{/each}}
 </body>
 
-<h1>Station Inventor</h1>
-<body>
-
+<h1>Station Inventory</h1>
+<body>{{#each mStations}}
+{{#each this}}
+	<h3>{{this}}</h3>
+	{{/each}}
+	{{/each}}
 </body
