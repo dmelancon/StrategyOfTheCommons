@@ -67,7 +67,7 @@ var Player = mongoose.model('Player', playerSchema);
 //======================================================
 //====================SET UP ROUTES=====================
 //======================================================
-
+var bonusTime = 10000;
 var stationBonus= [];        //array of allstations bonuses
 var stationBonusOn = [];
 var allPlayersData = [];           //var to locally store updated player data
@@ -120,6 +120,14 @@ app.get('/playersUpdate', function(req, res){
    res.end("Players Update");
  });
 
+app.get('/setBonus/:bonus', function(req, res){
+  bonusTime = req.params.bonus*1000;
+  console.log(bonusTime);
+  clearInterval(bonusID);
+  bonusID = setInterval(bonusUpdate, bonusTime);
+  res.end("Bonus set to " + bonusTime/1000 + " seconds.");
+});
+
 app.get('/resetGame', function(req, res){
   resetGame();
   res.end("Game Reset")
@@ -140,7 +148,10 @@ app.get('/station/:stationId/player/:playerId/', function(req, res) {
   res.end("Player "+  playerId + " at station "+ stationId + ".");
 
 });
-//this is the route to the players individualized status page
+//======================================================
+//===============Player Phone ROUTE=====================
+//======================================================
+
 
 app.get('/player/:playerId', function(req, res){
     var playerID = req.params.playerId;
@@ -151,6 +162,9 @@ app.get('/player/:playerId', function(req, res){
     });
 });
 
+//======================================================
+//===========++====HELPER FUNCTIONS=====================
+//======================================================
 
 //How we calcuate how many points players get for dropping off and picking up
 
@@ -210,7 +224,7 @@ var playersUpdate = function(){
  allPlayersData = [];      
  for (var i = 0; i < numPlayers; i++ ){
     thisPlayer = [];
-    Player.findOne({ 'playerId': i }, function (err, player) {
+    Player.findOne({ 'playerId': i+1 }, function (err, player) {
         if (err) return handleError(err);
         thisPlayer.push(player.playerId);
         thisPlayer.push(player.points);
@@ -218,38 +232,37 @@ var playersUpdate = function(){
         allPlayersData.push(thisPlayer);
         thisPlayer = [];
        if (allPlayersData.length>numPlayers-1){
-        console.log(allPlayersData);
-       io.sockets.emit( 'playerUpdate', allPlayersData);    //every player and their points
+          console.log(allPlayersData);
+          io.sockets.emit( 'playerUpdate', allPlayersData);    //every player and their points
         }
     });
   }
 }
 
-
-//figure out why its not in order
-
 var stationsUpdate = function(){
   allStationsData = [];
   for (var i = 0; i < numStations; i++ ){
     thisStation = [];
-    Station.findOne({ 'stationId': i }, function (err, station) {
+    Station.findOne({ 'stationId': i+1 }, function (err, station) {
         if (err) return handleError(err);
         thisStation.push(station.stationId);     //allStationData[i][0] = station ID
         thisStation.push(station.inventory);     //allStationData[i][1] = station Inventory
-        thisStation.push(stationBonusOn[station.stationId]);
-        thisStation.push(stationBonus[station.stationId]);  
+        thisStation.push(stationBonusOn[station.stationId-1]);
+        thisStation.push(stationBonus[station.stationId-1]);  
         allStationsData.push(thisStation); 
         thisStation = [];      
         if (allStationsData.length>4){
-         console.log(allStationsData);
-         io.sockets.emit('stationUpdate', allStationsData);    // every station and its inventory  
+           console.log(allStationsData);
+           io.sockets.emit('stationUpdate', allStationsData);    // every station and its inventory  
         }                 
     });
   }
 }
 
-//this should be called every 5 sec or so
+//this should be called every 10 sec or so
+
 var bonusUpdate = function(){
+  var numBonus = 0;
   for (var i = 0; i<numStations; i++){
     if (allStationsData[i][1] == 0 || allStationsData[i][1] == 5){
           stationBonusOn[i] = true;
@@ -259,24 +272,30 @@ var bonusUpdate = function(){
     }
     if (stationBonusOn[i] == true){
         stationBonus[i] = stationBonus[i] + numPlayers;
-        for (var j = 0; j<numPlayers; j++){
-          Player.findOne({ 'playerId': j }, function (err, player) {
-            if (err) return handleError(err);
-            player.points = player.points - 1;
-            player.save();
-          });
-      }
+        numBonus ++;
     }
   }
+ for (var j = 0; j<numPlayers; j++){
+      //console.log("player index : "+ j);
+      Player.findOne({ 'playerId': j+1 }, function (err, player) {
+        //console.log("DB player index : "+ j);
+        if (err) return handleError(err);
+        player.points = player.points - 1*numBonus;
+        player.save();
+      });
+  }
  console.log(stationBonus);
+ playersUpdate();
+ stationsUpdate();
 }
 
 
-setInterval(bonusUpdate, 10000);
+//               //updateBonus every 10 secs
+var bonusID = setInterval(bonusUpdate, bonusTime);
 
 
 var resetGame = function(){
-  stationBonus= [];        //array of allstations bonuses
+  stationBonus= [];               //array of allstations bonuses
   stationBonusOn = [];
   allPlayersData = [];           //var to locally store updated player data
   allStationsData = [];          //var to locally store updated station data
@@ -286,7 +305,7 @@ var resetGame = function(){
     stationBonusOn.push(false);
   }  
   for (var i = 0; i<numPlayers; i++){
-    Player.findOne({ 'playerId': i}, function (err, player) {
+    Player.findOne({ 'playerId': i+1}, function (err, player) {
             if (err) return handleError(err);
             player.stock = false;
             player.points = 0;
@@ -294,7 +313,7 @@ var resetGame = function(){
     });
   };
   for (var i = 0; i<numStations; i++){
-    Station.findOne({ 'stationId': i }, function (err, station) {
+    Station.findOne({ 'stationId': i+1 }, function (err, station) {
             if (err) return handleError(err);
             station.inventory = 0;
             station.save();
@@ -305,11 +324,15 @@ var resetGame = function(){
 }
 
 
-//checkin Listener
+//======================================================
+//=================CHECKIN LISTENER=====================
+//======================================================
+
 //this socket waits for client to respond 
-//data comes back false if station is full/player is dropping off or empty/player is pickingup or player says NO
+//data comes back false if station is full/player is dropping off or empty/player is picking up or player says NO
+
 io.sockets.on('checkInConfirm', function(data){  
-  var stockChange;  // -1 or 1, drop off or pickup //figure
+  var stockChange = 0;  // -1 or 1, drop off or pickup //figure
   var pointChange = 0;
   var checkIn = Boolean;
   //data  = [ false , playerId, stationId ];
@@ -317,27 +340,27 @@ io.sockets.on('checkInConfirm', function(data){
     var playerId = data[1];
     var stationId = data[2];
     Station.findOne({ 'stationId': stationId}, function (err, station) {
-      if (err) return handleError(err);
-       Player.findOne({ 'playerId': playerId }, function (err, player) {
-          if (err) return handleError(err);
-          if (player.stock == true) stockChange= -1;
-          if (player.stock == false) stockChange = 1;
-       })
-      station.inventory = station.inventory + stockChange;
-      if (stockChange<0) pointChange = calcPickUpPoints(station.inventory, stationBonus[stationId]); 
-      if (stockChange>0) pointChange = calcDropOffPoints(station.inventory, stationBonus[stationId]);  
-      station.save();
-      Player.findOne({ 'playerId': playerID }, function (err, player) {
-          if (err) return handleError(err);
-          player.stock != player.stock;
-          player.point = player.point + pointChange;
-          player.save();
-      })
+        if (err) return handleError(err);
+         Player.findOne({ 'playerId': playerId }, function (err, player) {
+            if (err) return handleError(err);
+            if (player.stock == true) stockChange = -1;
+            if (player.stock == false) stockChange = 1;
+         })
+        station.inventory = station.inventory + stockChange;
+        if (stockChange<0) pointChange = calcPickUpPoints(station.inventory, stationBonus[stationId]); 
+        if (stockChange>0) pointChange = calcDropOffPoints(station.inventory, stationBonus[stationId]);  
+        station.save();
+        Player.findOne({ 'playerId': playerID }, function (err, player) {
+            if (err) return handleError(err);
+            player.stock != player.stock;
+            player.point = player.point + pointChange;
+            player.save();
+        })
     })
      playersUpdate();
      stationsUpdate();
   }
 });
 
-
+resetGame();
 
