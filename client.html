@@ -1,4 +1,5 @@
-{{!< ../views/layouts/main}}
+<html>
+
 <head>
 	<title> CloudCommuting Test </title>
 
@@ -16,21 +17,20 @@
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
 
-		var myId = {{mPlayer}}; 
+		var myId = 1; 
 
 		var playerIds = [1,2,3,4,5,6,7,8,9,10];
-		var playerStock = [false, false, false, false, false, false, false, false, false, false];
+		var playerStock = [0,0,0,0,0,0,0,0,0,0];
 		var playerPoints = [0,0,0,0,0,0,0,0,0,0];
 		
 		var stationIds = [1,2,3,4,5];
 		var stationStock = [0,0,0,0,0];
 		var stationBonuses = [false, false, false, false, false];
-		var stationBonusPts = [0,0,0,0,0];
 
 		// =============================================
 		// 1 - connect to node socket.io server
 		// =============================================
-		var socket = io.connect('http://172.16.245.247:3000/');	
+		var socket = io.connect('/');		
 
 		socket.on('connect', function () {
 			console.log("Connected");
@@ -47,36 +47,26 @@
 			var playerId = checkInData[0];
 			var stationId = checkInData[1];
 
-			var index = playerIds.indexOf(parseInt(playerId));
-
-			// console.log("Player Ids " + playerIds );
-			// console.log("Player Id " + playerId);
-			// console.log(typeof(playerId));
-			// console.log("Station Id " + stationId);
-			// console.log("Index " + index);
-			// console.log("Player Stock Array " + playerStock);
-			// console.log("Player Stock " + playerStock[index]);
+			var index = playerIds.indexOf(playerId);
 
 			//checking in a bike
-			if (myId == playerId && playerStock[index] == true){
+			if (myId == playerId && playerStock[index]){
 				if(checkStation(stationId)){
 					var r = confirm("Return Bike?");
 					if (r) {
 						var checkInStatus = [playerId, stationId];
 					    socket.emit ('checkInConfirm', checkInStatus);
-					    console.log('Returned Bike!');
 					} 
 				} 
 			}
 
 			//checking out a bike
-			if (myId == playerId && playerStock[index] == false){
+			if (myId == playerId && !playerStock[index]){
 				if(checkStation(stationId)){
 					var r = confirm("Take Bike?");
 					if (r) {
 						var checkInStatus = [playerId, stationId];
 					    socket.emit ('checkInConfirm', checkInStatus);
-					    console.log('Took Bike!');
 					} 
 				}
 			}
@@ -99,14 +89,14 @@
 		};
 
 		socket.on('playerUpdate', function (playerData){
-			//playerId playerData[0] number
-			//playerPts playerData[1] number
-			//playerStock playerData[2]	boolean
+			//playerId playerData[0] 
+			//playerPts playerData[1]
+			//playerStock playerData[2]	
 
-			for (var i = 0; i < playerData.length; i++){
-				var index = playerIds.indexOf(playerData[i][0]);
-				playerPoints[index] = playerData[i][1];
-				playerStock[index] = playerData[i][2];
+			for (var i = 0; playerData.length; i++){
+				var index = playerIds.indexOf(playersData[i][0]);
+				playerPoints[index] = playersData[i][1];
+				playerStock[index] = playersData[i][2];
 			}
 
 		});
@@ -114,17 +104,18 @@
 		socket.on('stationUpdate', function (stationData){
 			//stationId stationData[0] number
 			//stationInv stationData[1] number
-			//stationBonus stationData[2] boolean
+			//stationBonus playerData[2] boolean
 			//stationBonusPts = stationData[3] number	
 
-			for (var i = 0; i < stationData.length; i++){
+			for (var i = 0; stationData.length; i++){
 				var index = stationIds.indexOf(stationData[i][0]);
 				stationStock[index] = stationData[i][1];
-				stationBonuses[index] = stationData[i][2];
-				stationBonusPts[index] = stationData[i][3];
+				stationStock[index] = stationData[i][2];
 			}
 
 		});	
 
 	</script>
 </head>
+
+</html>

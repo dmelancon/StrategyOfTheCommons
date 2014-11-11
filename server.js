@@ -10,18 +10,25 @@ app.set('view engine', 'hbs');
 app.set('views', __dirname + '/views');
 
 if (!module.parent) {
-  app.listen(3000);
+  var server = app.listen(3000);
 
   console.log('Express started on port 3000');
 }
+
+
+
 //======================================================
 //=================SET UP WEBSOCKETS====================
 //======================================================
-var Server = require('socket.io');
-var io = new Server();
+var io = require('socket.io').listen(server);
 
-io.on('connection', function(socket){
+
+io.sockets.on('connection', function(socket){
   console.log('a user connected');
+  socketCheckIn(socket);
+  socket.on('disconnect', function(){
+    console.log("client has disconnect");
+  });
 });
 
 //======================================================
@@ -44,7 +51,7 @@ var Schema = mongoose.Schema;
 
 var stationSchema = Schema({
   stationId : Number,
-  inventory: {type: Number, default: 0}
+  inventory: {type: Number, default: 3}
   //currentPointsOffered: Number
 });
 
@@ -54,15 +61,16 @@ var playerSchema = Schema({
   stock: {type: Boolean, default: false}
 });  
 
-// var checkInSchema = Schema({
-//   playerID: Number,
-//   stationId: Number,
-//   pickUpDropOff: Boolean,
-//   time: Date
-// })    
+var checkInSchema = Schema({
+  playerID: Number,
+  stationId: Number,
+  pickUpDropOff: Boolean,
+  timeDate: { type: Date, default: Date.now }
+})    
 
 var Station = mongoose.model('Station', stationSchema);
 var Player = mongoose.model('Player', playerSchema);
+var CheckIn = mongoose.model('CheckIn', checkInSchema);
 
 //======================================================
 //====================SET UP ROUTES=====================
@@ -72,7 +80,7 @@ var stationBonus= [];        //array of allstations bonuses
 var stationBonusOn = [];
 var allPlayersData = [];           //var to locally store updated player data
 var allStationsData = [];          //var to locally store updated station data
-var numPlayers = 8;
+var numPlayers = 10;
 var numStations = 5;
 //bonus set up
 for (var i = 0; i<numStations; i++){
@@ -146,7 +154,6 @@ app.get('/station/:stationId/player/:playerId/', function(req, res) {
   console.log("Player "+  playerId + " at station "+ stationId + ".");
   io.sockets.emit( 'playerCheckIn', checkInData);    //send to player client on phone stationID + playerStock
   res.end("Player "+  playerId + " at station "+ stationId + ".");
-
 });
 //======================================================
 //===============Player Phone ROUTE=====================
@@ -156,8 +163,6 @@ app.get('/station/:stationId/player/:playerId/', function(req, res) {
 app.get('/player/:playerId', function(req, res){
     var playerID = req.params.playerId;
     res.render('home', {
-      mPlayers : allPlayersData,
-      mStations: allStationsData,
       mPlayer  :playerID
     });
 });
@@ -315,7 +320,7 @@ var resetGame = function(){
   for (var i = 0; i<numStations; i++){
     Station.findOne({ 'stationId': i+1 }, function (err, station) {
             if (err) return handleError(err);
-            station.inventory = 0;
+            station.inventory = 3;
             station.save();
     });
   };
@@ -331,36 +336,46 @@ var resetGame = function(){
 //this socket waits for client to respond 
 //data comes back false if station is full/player is dropping off or empty/player is picking up or player says NO
 
-io.sockets.on('checkInConfirm', function(data){  
-  var stockChange = 0;  // -1 or 1, drop off or pickup //figure
-  var pointChange = 0;
-  var checkIn = Boolean;
-  //data  = [ false , playerId, stationId ];
-  if (data[0] == true){
-    var playerId = data[1];
-    var stationId = data[2];
-    Station.findOne({ 'stationId': stationId}, function (err, station) {
-        if (err) return handleError(err);
-         Player.findOne({ 'playerId': playerId }, function (err, player) {
-            if (err) return handleError(err);
-            if (player.stock == true) stockChange = -1;
-            if (player.stock == false) stockChange = 1;
+var socketCheckIn = function(socket){ 
+  socket.on('checkInConfirm', function(data){  
+    console.log("CHECKIN RECEIVED");
+    var stockChange = 0;  // -1 or 1, drop off or pickup //figure
+    var pointChange = 0;
+    var checkIn = Boolean;
+    console.log(data);
+    if (data){
+      var playerId = data[0];
+      var stationId = data[1];
+      console.log(playerId);
+      Player.findOne({ 'playerId': playerId }, function (err, player) {
+          if (err) return handleError(err);
+          if (player.stock == true) stockChange = 1;
+          if (player.stock == false) stockChange = -1;
+       });
+      Station.findOne({ 'stationId': stationId}, function (err, station) {
+          if (err) return handleError(err);
+          console.log(stockChange);
+          station.inventory = station.inventory + stockChange;
+          if (stockChange<0) pointChange = calcPickUpPoints(station.inventory, stationBonus[stationId]); 
+          if (stockChange>0) pointChange = calcDropOffPoints(station.inventory, stationBonus[stationId]);  
+          station.save();
+          Player.findOne({ 'playerId': playerId }, function (err, player) {
+              if (err) return handleError(err);
+              player.stock = !player.stock;
+              player.points = player.points + pointChange;
+              player.save();
          })
-        station.inventory = station.inventory + stockChange;
-        if (stockChange<0) pointChange = calcPickUpPoints(station.inventory, stationBonus[stationId]); 
-        if (stockChange>0) pointChange = calcDropOffPoints(station.inventory, stationBonus[stationId]);  
-        station.save();
-        Player.findOne({ 'playerId': playerID }, function (err, player) {
-            if (err) return handleError(err);
-            player.stock != player.stock;
-            player.point = player.point + pointChange;
-            player.save();
-        })
-    })
-     playersUpdate();
-     stationsUpdate();
-  }
-});
-
+      })
+       var newCheckIn = new CheckIn();
+       newCheckIn.playerID = playerId; 
+       newCheckIn.stationID = stationId;
+       if(stockChange == -1) newCheckIn.pickUpDropOff = true;
+       if(stockChange == 1) newCheckIn.pickUpDropOff = false;
+       newCheckIn.save();
+    }
+    playersUpdate();
+    stationsUpdate();
+  });
+}
 resetGame();
 
