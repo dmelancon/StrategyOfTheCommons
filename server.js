@@ -79,7 +79,8 @@ var bonusTime = 10000;
 var stationBonus= [];        //array of allstations bonuses
 var stationBonusOn = [];
 var allPlayersData = [];           //var to locally store updated player data
-var allStationsData = [];          //var to locally store updated station data
+var allStationsData = [];
+var prevPlayersStation = [0,0,0,0,0,0,0,0,0,0];          //var to locally store updated station data
 var numPlayers = 10;
 var numStations = 5;
 //bonus set up
@@ -153,7 +154,8 @@ app.get('/station/:stationId/player/:playerId/', function(req, res) {
   //checks station status and send user an alert
   var stationId = req.params.stationId;  // station Number
   var playerId = req.params.playerId;
-  var checkInData = [playerId,stationId];
+  var lastStation = prevPlayersStation[playerId-1];
+  var checkInData = [playerId,stationId, lastStation];
   console.log("Player "+  playerId + " at station "+ stationId + ".");
   io.sockets.emit( 'playerCheckIn', checkInData);    //send to player client on phone stationID + playerStock
   res.end("Player "+  playerId + " at station "+ stationId + ".");
@@ -167,6 +169,12 @@ app.get('/player/:playerId', function(req, res){
     var playerID = req.params.playerId;
     res.render('home', {
       mPlayer  :  playerID      
+    });
+});
+
+app.get('/master', function(req, res){
+    res.render('home', {
+      mPlayer  :  0      
     });
 });
 
@@ -285,7 +293,7 @@ var bonusUpdate = function(){
   var numBonus = 0;
    console.log(stationBonus);
   for (var i = 0; i<numStations; i++){
-    if (allStationsData[1]){
+    if (allStationsData[i]){
       var index = allStationsData[i][0]-1;
 
       if (allStationsData[i][1] == 0 || allStationsData[i][1] == 5){
@@ -316,15 +324,15 @@ return stationsUpdate(), playersUpdate();
 
 //               //updateBonus every 10 secs
 setInterval(bonusUpdate, 10000);
-// setInterval( stationsUpdate, 500);
-// setInterval( playersUpdate, 500);
+setInterval( stationsUpdate, 500);
+setInterval( playersUpdate, 500);
 
 
 var resetGame = function(){
   console.log('=======================');
   console.log('in Reset Game');
   console.log('=======================');
-
+  prevPlayersStation = [0,0,0,0,0,0,0,0,0,0];
   stationBonus= [];               //array of allstations bonuses
   stationBonusOn = [];
   allPlayersData = [];           //var to locally store updated player data
@@ -370,6 +378,7 @@ var socketCheckIn = function(socket){
     if (data){
       var playerId = data[0];
       var stationId = data[1];
+      prevPlayersStation[playerId-1] = stationId;
       console.log(playerId);
       Player.findOne({ 'playerId': playerId }, function (err, player) {
           if (err) return handleError(err);
@@ -388,6 +397,7 @@ var socketCheckIn = function(socket){
               player.stock = !player.stock;
               player.points = player.points + pointChange;
               player.save();
+
          })
       })
        var newCheckIn = new CheckIn();
@@ -400,4 +410,6 @@ var socketCheckIn = function(socket){
   return stationsUpdate(), playersUpdate();
   });
 }
+resetGame();
+resetGame();
 resetGame();

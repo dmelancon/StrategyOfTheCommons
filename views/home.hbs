@@ -17,7 +17,7 @@
 	<script>
 
 		var myId = {{mPlayer}}; 
-		var lastStationVisited;
+		var lastStationVisited = 999;
 
 		var playerIds = [1,2,3,4,5,6,7,8,9,10];
 		var playerStock = [false, false, false, false, false, false, false, false, false, false];
@@ -40,28 +40,30 @@
 		// =============================================
 		// 2 - Receive a check-in event from the server
 		// =============================================
-
 		socket.on('playerCheckIn', function (checkInData){
 
 			console.log('Received CheckIn Event');
+			console.log(checkInData);
+			var playerId = parseInt(checkInData[0]);
+			var stationId = parseInt(checkInData[1]);
 
-			var playerId = checkInData[0];
-			var stationId = checkInData[1];
-
+			lastStationVisited = parseInt(checkInData[2]);
+			console.log("last station: " + lastStationVisited);
 			var index = playerIds.indexOf(parseInt(playerId));
 
-
-			// checking in a bike
-			// if the playerId is me and I have stock
-			// check the stock of the station and make sure it's not the last station I visited
-
-			//checking in a bike
+			
+			// =============================================
+			// 3 - Dropping off a bike into a station
+			// =============================================
+			// If I am the player, and I have stock, and the station has space, and I wasn't just here ... 
+			// if there is only one space left, alert the user that they will penalize everyone for dropping it
 			if (myId == playerId && playerStock[index] && checkInStation(stationId) && !lastVisited(stationId)){
 				if(stationStock[index] == 4){
 					var r = confirm("Returning Bike will incur system wide penalty, proceed?");
 					if (r) {
 						var checkInStatus = [playerId, stationId];
 					    socket.emit ('checkInConfirm', checkInStatus);
+					    // lastStationVisited = stationId; //REMOVE THIS
 					    console.log('Returned Bike!');
 					}
 				} else {
@@ -69,18 +71,23 @@
 					if (r) {
 						var checkInStatus = [playerId, stationId];
 					    socket.emit ('checkInConfirm', checkInStatus);
+					    // lastStationVisited = stationId; //REMOVE THIS
 					    console.log('Returned Bike!');
 					}
-				} 				 
-			}
+				} 				
 
-			//taking out a bike
-			if (myId == playerId && !playerStock[index] && checkOutStation(stationId) && !lastVisited(stationId)){
+			// =============================================
+			// 4 - Taking a bike from a station
+			// =============================================
+			// If I am the player, and I don't have stock, and the station has stock, and I wasn't just here ... 
+			// if there is only one stock left, alert the user that they will penalize everyone for taking it
+			} else if (myId == playerId && !playerStock[index] && checkOutStation(stationId) && !lastVisited(stationId)){
 				if(stationStock[index] == 1){
 					var r = confirm("Taking bike will incur system wide penalty, proceed?");
 					if (r) {
 						var checkInStatus = [playerId, stationId];
 					    socket.emit ('checkInConfirm', checkInStatus);
+					    // lastStationVisited = stationId; //REMOVE THIS
 					    console.log('Returned Bike!');
 					}
 				} else {				
@@ -88,13 +95,27 @@
 					if (r) {
 						var checkInStatus = [playerId, stationId];
 					    socket.emit ('checkInConfirm', checkInStatus);
+					    // lastStationVisited = stationId;   //REMOVE THIS
 					    console.log('Took Bike!');
 					}
-				} 				
-			}
+				} 				 
 
+			// =====================================================
+			// 5 - Prevent users from returning or taking from the same station
+			// =====================================================
+			// If I am the player, and I don't have stock, and the station has stock, and I wasn't just here ... 
+			// if there is only one stock left, alert the user that they will penalize everyone for taking it
+			} else if (myId == playerId && lastVisited(stationId)){
+				if (playerStock[index]){
+					alert("You have to return to a different station!");
+				} else if (!playerStock[index]) {
+					alert("You can't pickup from the place you dropped off!");
+				}
+			}
+			 
 		});
 
+		// support function to check if the station has space available
 		function checkInStation(station){			
 			var index = stationIds.indexOf(parseInt(station));
 			if (stationStock[index] == 5){
@@ -105,7 +126,7 @@
 			}
 		};
 
-
+		// support function to check if the station has stock available
 		function checkOutStation(station){			
 			var index = stationIds.indexOf(parseInt(station));
 			if (stationStock[index] == 0){
@@ -116,7 +137,8 @@
 			}
 		};
 
-		var lastVisited = function(station){
+		// support function to check if the station was just visited
+		function lastVisited(station){
 			if (station == lastStationVisited){
 				return true;
 			} else {
@@ -134,7 +156,6 @@
 				playerPoints[index] = playerData[i][1];
 				playerStock[index] = playerData[i][2];
 			}
-
 		});
 
 		socket.on('stationUpdate', function (stationData){
@@ -149,7 +170,6 @@
 				stationBonuses[index] = stationData[i][2];
 				stationBonusPts[index] = stationData[i][3];
 			}
-
 		});	
 
 	</script>
