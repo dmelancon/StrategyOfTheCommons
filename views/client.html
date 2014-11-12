@@ -17,7 +17,6 @@
 	<script>
 
 		var myId = {{mPlayer}}; 
-		var lastStationVisited;
 
 		var playerIds = [1,2,3,4,5,6,7,8,9,10];
 		var playerStock = [false, false, false, false, false, false, false, false, false, false];
@@ -31,7 +30,7 @@
 		// =============================================
 		// 1 - connect to node socket.io server
 		// =============================================
-		var socket = io.connect('/');	
+		var socket = io.connect('http://172.16.245.247:3000/');	
 
 		socket.on('connect', function () {
 			console.log("Connected");
@@ -50,79 +49,54 @@
 
 			var index = playerIds.indexOf(parseInt(playerId));
 
-
-			// checking in a bike
-			// if the playerId is me and I have stock
-			// check the stock of the station and make sure it's not the last station I visited
+			// console.log("Player Ids " + playerIds );
+			// console.log("Player Id " + playerId);
+			// console.log(typeof(playerId));
+			// console.log("Station Id " + stationId);
+			// console.log("Index " + index);
+			// console.log("Player Stock Array " + playerStock);
+			// console.log("Player Stock " + playerStock[index]);
 
 			//checking in a bike
-			if (myId == playerId && playerStock[index] && checkInStation(stationId) && !lastVisited(stationId)){
-				if(stationStock[index] == 4){
-					var r = confirm("Returning Bike will incur system wide penalty, proceed?");
-					if (r) {
-						var checkInStatus = [playerId, stationId];
-					    socket.emit ('checkInConfirm', checkInStatus);
-					    console.log('Returned Bike!');
-					}
-				} else {
+			if (myId == playerId && playerStock[index] == true){
+				if(checkStation(stationId)){
 					var r = confirm("Return Bike?");
 					if (r) {
 						var checkInStatus = [playerId, stationId];
 					    socket.emit ('checkInConfirm', checkInStatus);
 					    console.log('Returned Bike!');
-					}
-				} 				 
+					} 
+				} 
 			}
 
-			//taking out a bike
-			if (myId == playerId && !playerStock[index] && checkOutStation(stationId) && !lastVisited(stationId)){
-				if(stationStock[index] == 1){
-					var r = confirm("Taking bike will incur system wide penalty, proceed?");
-					if (r) {
-						var checkInStatus = [playerId, stationId];
-					    socket.emit ('checkInConfirm', checkInStatus);
-					    console.log('Returned Bike!');
-					}
-				} else {				
+			//checking out a bike
+			if (myId == playerId && playerStock[index] == false){
+				if(checkStation(stationId)){
 					var r = confirm("Take Bike?");
 					if (r) {
 						var checkInStatus = [playerId, stationId];
 					    socket.emit ('checkInConfirm', checkInStatus);
 					    console.log('Took Bike!');
-					}
-				} 				
+					} 
+				}
 			}
 
 		});
 
-		function checkInStation(station){			
-			var index = stationIds.indexOf(parseInt(station));
+		function checkStation(station){
+			
+			var index = stationIds.indexOf(station);
+
 			if (stationStock[index] == 5){
 				alert("Station is full - find another!");
 				return false;
-			} else {
+			} else if (stationStock[index] == 0) {
+				alert("Station is empty - no bikes here!");
+				return false;
+			}else {
 				return true;
 			}
 		};
-
-
-		function checkOutStation(station){			
-			var index = stationIds.indexOf(parseInt(station));
-			if (stationStock[index] == 0){
-				alert("Station is empty - find another!");
-				return false;
-			} else {
-				return true;
-			}
-		};
-
-		var lastVisited = function(station){
-			if (station == lastStationVisited){
-				return true;
-			} else {
-				return false;
-			}
-		}
 
 		socket.on('playerUpdate', function (playerData){
 			//playerId playerData[0] number
@@ -130,7 +104,7 @@
 			//playerStock playerData[2]	boolean
 
 			for (var i = 0; i < playerData.length; i++){
-				var index = playerIds.indexOf(parseInt(playerData[i][0]));
+				var index = playerIds.indexOf(playerData[i][0]);
 				playerPoints[index] = playerData[i][1];
 				playerStock[index] = playerData[i][2];
 			}
@@ -144,13 +118,13 @@
 			//stationBonusPts = stationData[3] number	
 
 			for (var i = 0; i < stationData.length; i++){
-				var index = stationIds.indexOf(parseInt(stationData[i][0]));
+				var index = stationIds.indexOf(stationData[i][0]);
 				stationStock[index] = stationData[i][1];
 				stationBonuses[index] = stationData[i][2];
 				stationBonusPts[index] = stationData[i][3];
 			}
 
 		});	
-
 	</script>
+
 </head>

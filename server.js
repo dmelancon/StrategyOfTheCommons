@@ -137,7 +137,10 @@ app.get('/setBonus/:bonus', function(req, res){
 });
 
 app.get('/resetGame', function(req, res){
-  resetGame();
+  resetGame(function(value){
+    stationsUpdate(value);
+    playersUpdate(value);
+  });
   res.end("Game Reset")
 });
 
@@ -163,7 +166,7 @@ app.get('/station/:stationId/player/:playerId/', function(req, res) {
 app.get('/player/:playerId', function(req, res){
     var playerID = req.params.playerId;
     res.render('home', {
-      mPlayer  :playerID
+      mPlayer  :  playerID      
     });
 });
 
@@ -226,6 +229,10 @@ var calcPickUpPoints = function(inventory, bonus){
 //update Local player and station data to send to Client
 
 var playersUpdate = function(){
+  console.log('=======================');
+  console.log('in Player Update');
+  console.log('=======================');
+
  allPlayersData = [];      
  for (var i = 0; i < numPlayers; i++ ){
     thisPlayer = [];
@@ -245,6 +252,10 @@ var playersUpdate = function(){
 }
 
 var stationsUpdate = function(){
+  console.log('=======================');
+  console.log('in Station Update');
+  console.log('======================='); 
+
   allStationsData = [];
   for (var i = 0; i < numStations; i++ ){
     thisStation = [];
@@ -267,17 +278,26 @@ var stationsUpdate = function(){
 //this should be called every 10 sec or so
 
 var bonusUpdate = function(){
+  console.log('=======================');
+  console.log('in Bonus Update');
+  console.log('=======================');
+
   var numBonus = 0;
+   console.log(stationBonus);
   for (var i = 0; i<numStations; i++){
-    if (allStationsData[i][1] == 0 || allStationsData[i][1] == 5){
-          stationBonusOn[i] = true;
-    }else{
-          stationBonusOn[i] = false;
-          stationBonus[i] = 0;
-    }
-    if (stationBonusOn[i] == true){
-        stationBonus[i] = stationBonus[i] + numPlayers;
-        numBonus ++;
+    if (allStationsData[1]){
+      var index = allStationsData[i][0]-1;
+
+      if (allStationsData[i][1] == 0 || allStationsData[i][1] == 5){
+            stationBonusOn[index] = true;
+      }else{
+            stationBonusOn[index] = false;
+            stationBonus[index] = 0;
+      }
+      if (stationBonusOn[index] == true){
+          stationBonus[index] = stationBonus[index] + numPlayers;
+          numBonus ++;
+      }
     }
   }
  for (var j = 0; j<numPlayers; j++){
@@ -290,16 +310,21 @@ var bonusUpdate = function(){
       });
   }
  console.log(stationBonus);
- playersUpdate();
- stationsUpdate();
+return stationsUpdate(), playersUpdate();
 }
 
 
 //               //updateBonus every 10 secs
-var bonusID = setInterval(bonusUpdate, bonusTime);
+setInterval(bonusUpdate, 10000);
+// setInterval( stationsUpdate, 500);
+// setInterval( playersUpdate, 500);
 
 
 var resetGame = function(){
+  console.log('=======================');
+  console.log('in Reset Game');
+  console.log('=======================');
+
   stationBonus= [];               //array of allstations bonuses
   stationBonusOn = [];
   allPlayersData = [];           //var to locally store updated player data
@@ -320,12 +345,11 @@ var resetGame = function(){
   for (var i = 0; i<numStations; i++){
     Station.findOne({ 'stationId': i+1 }, function (err, station) {
             if (err) return handleError(err);
-            station.inventory = 3;
+            station.inventory = 1;
             station.save();
     });
   };
-  stationsUpdate();
-  playersUpdate();
+  return stationsUpdate(), playersUpdate();
 }
 
 
@@ -355,9 +379,9 @@ var socketCheckIn = function(socket){
       Station.findOne({ 'stationId': stationId}, function (err, station) {
           if (err) return handleError(err);
           console.log(stockChange);
+          if (stockChange<0) pointChange = calcPickUpPoints(station.inventory, stationBonus[stationId-1]); 
+          if (stockChange>0) pointChange = calcDropOffPoints(station.inventory, stationBonus[stationId-1]);  
           station.inventory = station.inventory + stockChange;
-          if (stockChange<0) pointChange = calcPickUpPoints(station.inventory, stationBonus[stationId]); 
-          if (stockChange>0) pointChange = calcDropOffPoints(station.inventory, stationBonus[stationId]);  
           station.save();
           Player.findOne({ 'playerId': playerId }, function (err, player) {
               if (err) return handleError(err);
@@ -373,9 +397,7 @@ var socketCheckIn = function(socket){
        if(stockChange == 1) newCheckIn.pickUpDropOff = false;
        newCheckIn.save();
     }
-    playersUpdate();
-    stationsUpdate();
+  return stationsUpdate(), playersUpdate();
   });
 }
 resetGame();
-
