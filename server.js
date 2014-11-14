@@ -26,6 +26,7 @@ var io = require('socket.io').listen(server);
 io.sockets.on('connection', function(socket){
   console.log('a user connected');
   socketCheckIn(socket);
+  socketMissionComplete(socket);
   socket.on('disconnect', function(){
     console.log("client has disconnect");
   });
@@ -62,15 +63,18 @@ var playerSchema = Schema({
 });  
 
 var checkInSchema = Schema({
-  playerID: Number,
+  playerId: Number,
   stationId: Number,
   pickUpDropOff: Boolean,
   timeDate: { type: Date, default: Date.now }
 })    
-
+var gameSchema = Schema({
+  checkIns: [checkInSchema]
+}) 
 var Station = mongoose.model('Station', stationSchema);
 var Player = mongoose.model('Player', playerSchema);
 var CheckIn = mongoose.model('CheckIn', checkInSchema);
+var Game = mongoose.model('Game', gameSchema);
 
 //======================================================
 //====================SET UP ROUTES=====================
@@ -89,9 +93,7 @@ for (var i = 0; i<numStations; i++){
   stationBonusOn.push(false);
 }  
 
-var Station = mongoose.model('Station', stationSchema);
-var Player = mongoose.model('Player', playerSchema);
-
+var newGame = new Game();
 
 app.get('/', function(req, res) {
     res.send('Hello World');
@@ -323,12 +325,14 @@ return stationsUpdate(), playersUpdate();
 
 
 //               //updateBonus every 10 secs
-setInterval(bonusUpdate, 10000);
+setInterval(bonusUpdate, 1000);
 setInterval( stationsUpdate, 500);
 setInterval( playersUpdate, 500);
 
 
 var resetGame = function(){
+  newGame.save();
+  newGame = new Game();
   console.log('=======================');
   console.log('in Reset Game');
   console.log('=======================');
@@ -397,19 +401,46 @@ var socketCheckIn = function(socket){
               player.stock = !player.stock;
               player.points = player.points + pointChange;
               player.save();
-
+          var newCheckIn = new CheckIn();
+           newCheckIn.playerId = playerId; 
+           newCheckIn.stationId = stationId;
+           if(stockChange == -1) newCheckIn.pickUpDropOff = true;
+           if(stockChange == 1) newCheckIn.pickUpDropOff = false;
+           newCheckIn.save();
+           newGame.checkIns.push(newCheckIn);
+           newGame.save();
          })
       })
-       var newCheckIn = new CheckIn();
-       newCheckIn.playerID = playerId; 
-       newCheckIn.stationID = stationId;
-       if(stockChange == -1) newCheckIn.pickUpDropOff = true;
-       if(stockChange == 1) newCheckIn.pickUpDropOff = false;
-       newCheckIn.save();
     }
   return stationsUpdate(), playersUpdate();
   });
 }
-resetGame();
-resetGame();
-resetGame();
+
+var socketMissionComplete = function(socket){
+  socket.on('missionComplete', function(data){
+    var playerId = data[0];
+    Player.findOne({ 'playerId': playerId }, function (err, player) {
+              if (err) return handleError(err);
+              player.points = player.points - 50;
+              player.save();
+    })
+    return stationsUpdate(), playersUpdate();
+  });
+}
+
+var findPlayerRecords = function(gameId, playerId){ 
+  Game.find({'checkIns.playerId' : playerId, '_id.$oid' : gameId }, function (err,game){
+      if (err) return handleError(err);
+      console.log(game);
+  });
+}
+
+
+findPlayerRecords("546524aaba5bee6facf14090", 1);
+
+
+
+
+// resetGame();
+// resetGame();
+// resetGame();

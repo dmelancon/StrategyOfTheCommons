@@ -1,4 +1,5 @@
-{{!< ../views/layouts/main}}
+<!DOCTYPE html>
+<html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css">
@@ -66,15 +67,12 @@
 	<script>
 		var data = [];
 		var dataStation = [];
-		var myId = {{mPlayer}}; 
+		var myId = 1; 
 		var lastStationVisited = 999;
 		var playerIds = [1,2,3,4,5,6,7,8,9,10];
 		var playerStock = [false, false, false, false, false, false, false, false, false, false];
 		var playerPoints = [0,0,0,0,0,0,0,0,0,0];
-		//var myMissions = [false,false,false,false];
-		var onMission = false;
-		var missionCount = 0;
-		var missionStation = Math.floor((Math.random() * 5) + 1);
+		
 		var stationIds = [1,2,3,4,5];
 		var stationStock = [0,0,0,0,0];
 		var stationBonuses = [false, false, false, false, false];
@@ -96,15 +94,13 @@
 		socket.on('playerCheckIn', function (checkInData){
 
 			console.log('Received CheckIn Event');
-			//console.log(checkInData);
+			console.log(checkInData);
 			var playerId = parseInt(checkInData[0]);
 			var stationId = parseInt(checkInData[1]);
 			lastStationVisited = parseInt(checkInData[2]);
-
 			console.log("last station: " + lastStationVisited);
 			var index = playerIds.indexOf(parseInt(playerId));
 
-			
 			// =============================================
 			// 3 - Dropping off a bike into a station
 			// =============================================
@@ -118,21 +114,6 @@
 					    socket.emit ('checkInConfirm', checkInStatus);
 					    // lastStationVisited = stationId; //REMOVE THIS
 					    console.log('Returned Bike!');
-					    if (onMission){
-					    	if( missionStation != stationId){
-						   	 alert("This was not your mission! You are penalized 50 points!");
-						   	 console.log("Mission Failed!");
-						   	 var missionData = [playerId, false];
-						   	 socket.emit ('missionComplete', missionData);      //set up server side penalty route
-						   	}else{
-						   	 alert("Mission Complete!");
-						   	 console.log("missionStaiton : " + missionStation + " station ID :" + stationId);
-						   	 console.log("Mission Success!");
-						   	 //var missionData = [playerId, true]
-						   	 //socket.emit ('missionComplete', missionData);      //set up server side penalty route
-						   	}
-						   	onMission = false;
-						}
 					}
 				} else {
 					var r = confirm("Return Bike?");
@@ -141,20 +122,6 @@
 					    socket.emit ('checkInConfirm', checkInStatus);
 					    // lastStationVisited = stationId; //REMOVE THIS
 					    console.log('Returned Bike!');
-					    if (onMission){
-					    	if( missionStation != stationId){
-						   	 alert("This was not your mission! You are penalized 50 points!");
-						   	 console.log("Mission Failed!");
-						   	 var missionData = [playerId, false];
-						   	 socket.emit ('missionComplete', missionData);      //set up server side penalty route
-						   	}else{
-						   	 alert("Mission Complete!");
-						   	 console.log("Mission Success!");
-						   	 //var missionData = [playerId, true]
-						   	 //socket.emit ('missionComplete', missionData);      //set up server side penalty route
-						   	}
-						   	onMission = false;
-						}
 					}
 				} 				
 
@@ -164,42 +131,19 @@
 			// If I am the player, and I don't have stock, and the station has stock, and I wasn't just here ... 
 			// if there is only one stock left, alert the user that they will penalize everyone for taking it
 			} else if (myId == playerId && !playerStock[index] && checkOutStation(stationId) && !lastVisited(stationId)){
-				
-				if (missionCount<4 && Math.random()>0){     //randomly get mission
-					onMission = true;
-					missionCount++;
-					missionStation = Math.floor((Math.random() * 5) + 1);
-					while(missionStation == stationId){
-						missionStation = Math.floor((Math.random() * 5) + 1);
-					}
-					//console.log(missionStation);
-					console.log("Mission Count: " + missionCount);
-					console.log("Mission: " + onMission);
-
-				}      
 				if(stationStock[index] == 1){
 					var r = confirm("Taking bike will incur system wide penalty, proceed?");
 					if (r) {
 						var checkInStatus = [playerId, stationId];
 					    socket.emit ('checkInConfirm', checkInStatus);
-					    // lastStationVisited = stationId; //REMOVE THIS
-					    console.log('Took Bike!');
-					   	if (onMission){
-					   	 alert("New Mission: Take Bike to Station: " + missionStation);
-					   	 console.log("New Mission!");
-					   	}
+					    console.log('Returned Bike!');
 					}
 				} else {				
 					var r = confirm("Take Bike?");
 					if (r) {
 						var checkInStatus = [playerId, stationId];
 					    socket.emit ('checkInConfirm', checkInStatus);
-					    // lastStationVisited = stationId;   //REMOVE THIS
 					    console.log('Took Bike!');
-					    if (onMission){
-					   	 alert("New Mission: Take Bike to Station: " + missionStation);
-					   	 console.log("New Mission!");
-					   	}
 					}
 				} 				 
 
@@ -275,33 +219,31 @@
 				stationBonusPts[index] = stationData[i][3];
 			}
 			$(document).ready(function(){
-  //console.log("I am doing well.");
   	// let's render some data based on an array
 		  		data =[];
 				dataStation = [];
 		        var changeColor = [];
 
-		    for (var i = 0; i<playerIds.length; i++){
-		      data.push({name:'Player ' + playerIds[i], playerPoints: playerPoints[i], playerIds: playerIds[i], playerStock: playerStock[i]});
-		    }
-		    for (var i = 0; i<stationStock.length; i++){
-		      var changeCol = [];
-		        for (var j = 0; j< (stationStock[i]); j++){
-		              changeCol.push('full');
-		        }
-		        for (var j = 0; j< (5-stationStock[i]); j++){
-		              changeCol.push('empty');
-		        }  
-		        changeColor.push(changeCol);
-		    }
-		    for (var i = 0; i<stationIds.length; i++){
-		      dataStation.push({name:'Station ' + stationIds[i], stationId: stationIds[i], stationBonus: stationBonusPts[i], stationStock: stationStock[i], changeColor: changeColor[i]});
-		    }
-		    //console.log(changeColor);
+			    for (var i = 0; i<playerIds.length; i++){
+			      data.push({name:'Player ' + playerIds[i], playerPoints: playerPoints[i], playerIds: playerIds[i], playerStock: playerStock[i]});
+			    }
+			    for (var i = 0; i<stationStock.length; i++){
+			      var changeCol = [];
+			        for (var j = 0; j< (stationStock[i]); j++){
+			              changeCol.push('full');
+			        }
+			        for (var j = 0; j< (5-stationStock[i]); j++){
+			              changeCol.push('empty');
+			        }  
+			        changeColor.push(changeCol);
+			    }
+			    for (var i = 0; i<stationIds.length; i++){
+			      dataStation.push({name:'Station ' + stationIds[i], stationId: stationIds[i], stationBonus: stationBonuses[i], stationStock: stationStock[i], changeColor: changeColor[i]});
+			    }
+		   		console.log(changeColor);
 		    
-				});	
+			});	
 			createBarChart(data, dataStation);
-		
 });
 
 function createBarChart(data, dataStation){
@@ -311,7 +253,6 @@ function createBarChart(data, dataStation){
   			$('#line').empty();
   			$('#inventoryHolder').empty();
 	  		$.each(data, function(index) {
-
 	          $('#barChartHolder').append(
 	            '<div class="chart-holder" id="'+data[index].playerIds+'" style="'+
 	              'position: relative;'+
@@ -322,13 +263,12 @@ function createBarChart(data, dataStation){
 	              'display: -webkit-flex;'+
 	              'display: flex;'+
 	              'flex-flow: row;'+
-	              'flex-flow: row;'+
 	              'border-bottom: 0px solid #c0c0c0;'+
 	              'margin: 15px auto;'+
 	            '">'+
 	            '<div id="name" style="'+
 	            'position: relative;'+
-	            'font: 14px Helvetica;'+
+	            'font: 12px Helvetica;'+
 	              'margin-left: 5px;'+
 	              'padding-right: 10px;'+
 	              'text-align: right;'+
@@ -340,8 +280,8 @@ function createBarChart(data, dataStation){
 	              '-webkit-order: 1;'+
 	                      'order: 1;'+
 	                      '">'+data[index].name+'</div>'+
-	              '<div class="bar" style="border-right: 2px solid black; -webkit-flex: 1 3 '+data[index].playerPoints+'%; flex: 1 3 '+data[index].playerPoints+'%; -webkit-order: 2; order: 2;"></div>' +
-	              '<div class="bar-blank" style="-webkit-flex: 1 3 '+(parseInt(100-data[index].playerPoints))+'%; flex: 1 3 '+(parseInt(100-data[index].playerPoints))+'%; -webkit-order: 3; order: 3;"></div>' +
+	            	'<div class="bar" style="border-right: 2px solid black; -webkit-flex: 1 3 '+data[index].playerPoints+'%; flex: 1 3 '+data[index].playerPoints+'%; -webkit-order: 2; order: 2;"></div>' +
+	            	'<div class="bar-blank" style="-webkit-flex: 1 3 '+(parseInt(100-data[index].playerPoints))+'%; flex: 1 3 '+(parseInt(100-data[index].playerPoints))+'%; -webkit-order: 3; order: 3;"></div>' +
 	          	'</div>'
 	          );
 	       });  
@@ -359,13 +299,12 @@ function createBarChart(data, dataStation){
 	              'display: -webkit-flex;'+
 	              'display: flex;'+
 	              'flex-flow: row;'+
-	              '-webkit-flex-flow: row;'+
 	              'border-bottom: 0px solid #c0c0c0;'+
 	              'margin: 15px auto;'+
 	            '">'+
 	            '<div id="stationName" style="'+
 	            'position: relative;'+
-	            'font: 15px Helvetica;'+
+	            'font: 12px Helvetica;'+
 	              'margin-left: 5px;'+
 	              'padding-right: 10px;'+
 	              'text-align: right;'+
@@ -390,3 +329,4 @@ function createBarChart(data, dataStation){
   };
 	</script>
 </head>
+</html>

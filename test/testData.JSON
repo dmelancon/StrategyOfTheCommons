@@ -1,0 +1,96 @@
+var testData = {
+    "__v": 7,
+    "_id": {
+        "$oid": "546524aaba5bee6facf14090"
+    },
+    "checkIns": [
+        {
+            "_id": {
+                "$oid": "546524b8ba5bee6facf14091"
+            },
+            "playerId": 4,
+            "stationId": 3,
+            "pickUpDropOff": true,
+            "timeDate": {
+                "$date": "2014-11-13T21:38:00.254Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546524beba5bee6facf14092"
+            },
+            "playerId": 1,
+            "stationId": 2,
+            "pickUpDropOff": true,
+            "timeDate": {
+                "$date": "2014-11-13T21:38:06.417Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546524cbba5bee6facf14093"
+            },
+            "playerId": 1,
+            "stationId": 1,
+            "pickUpDropOff": false,
+            "timeDate": {
+                "$date": "2014-11-13T21:38:19.201Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546524e3ba5bee6facf14094"
+            },
+            "playerId": 4,
+            "stationId": 1,
+            "pickUpDropOff": false,
+            "timeDate": {
+                "$date": "2014-11-13T21:38:43.208Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546524e7ba5bee6facf14095"
+            },
+            "playerId": 4,
+            "stationId": 3,
+            "pickUpDropOff": true,
+            "timeDate": {
+                "$date": "2014-11-13T21:38:47.496Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546524ebba5bee6facf14096"
+            },
+            "playerId": 4,
+            "stationId": 1,
+            "pickUpDropOff": false,
+            "timeDate": {
+                "$date": "2014-11-13T21:38:51.268Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546524efba5bee6facf14097"
+            },
+            "playerId": 1,
+            "stationId": 2,
+            "pickUpDropOff": true,
+            "timeDate": {
+                "$date": "2014-11-13T21:38:55.471Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546524f2ba5bee6facf14098"
+            },
+            "playerId": 1,
+            "stationId": 4,
+            "pickUpDropOff": false,
+            "timeDate": {
+                "$date": "2014-11-13T21:38:58.496Z"
+            }
+        }
+    ]
+}
