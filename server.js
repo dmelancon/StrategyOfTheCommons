@@ -359,7 +359,7 @@ var resetGame = function(){
   for (var i = 0; i<numStations; i++){
     Station.findOne({ 'stationId': i+1 }, function (err, station) {
             if (err) return handleError(err);
-            station.inventory = 2;
+            station.inventory = 3;
             station.save();
     });
   };
