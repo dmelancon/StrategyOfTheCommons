@@ -403,7 +403,9 @@ var socketCheckIn = function(socket){
               player.stock = !player.stock;
               player.points = player.points + pointChange;
               player.save();
-          var newCheckIn = new CheckIn();
+           })
+     
+           var newCheckIn = new CheckIn();
            newCheckIn.playerId = playerId; 
            newCheckIn.stationId = stationId;
            newCheckIn.stationInventory = station.inventory;
@@ -412,8 +414,9 @@ var socketCheckIn = function(socket){
            newCheckIn.save();
            newGame.checkIns.push(newCheckIn);
            newGame.save();
-         })
-      })
+           })
+        
+      
     }
   return stationsUpdate(), playersUpdate();
   });

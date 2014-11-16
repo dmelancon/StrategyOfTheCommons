@@ -165,7 +165,7 @@
 
 			console.log("last station: " + lastStationVisited);
 			var index = playerIds.indexOf(parseInt(playerId));
-
+			var stationIndex = stationIds.indexOf(parseInt(stationId));
 			
 			// =============================================
 			// 3 - Dropping off a bike into a station
@@ -173,7 +173,7 @@
 			// If I am the player, and I have stock, and the station has space, and I wasn't just here ... 
 			// if there is only one space left, alert the user that they will penalize everyone for dropping it
 			if (myId == playerId && playerStock[index] && checkInStation(stationId) && !lastVisited(stationId)){
-				if(stationStock[index] == 4){
+				if(stationStock[stationIndex] == 4){
 					var r = confirm("Returning Bike will incur system wide penalty, proceed?");
 					if (r) {
 						var checkInStatus = [playerId, stationId];
@@ -227,19 +227,19 @@
 			// if there is only one stock left, alert the user that they will penalize everyone for taking it
 			} else if (myId == playerId && !playerStock[index] && checkOutStation(stationId) && !lastVisited(stationId)){
 				
-				if (missionCount<4 && Math.random()>.5){     //randomly get mission
+				if (missionCount<4 && Math.random()>0){     //randomly get mission
 					onMission = true;
 					missionCount++;
-					missionStation = Math.floor((Math.random() * 5) + 1);
+					missionStation = Math.floor((Math.random() * 6) + 1);
 					while(missionStation == stationId){
-						missionStation = Math.floor((Math.random() * 5) + 1);
+						missionStation = Math.floor((Math.random() * 6) + 1);
 					}
 					//console.log(missionStation);
 					console.log("Mission Count: " + missionCount);
 					console.log("Mission: " + onMission);
 
 				}      
-				if(stationStock[index] == 1){
+				if(stationStock[stationIndex] == 1){
 					var r = confirm("Taking bike will incur system wide penalty, proceed?");
 					if (r) {
 						var checkInStatus = [playerId, stationId];
@@ -427,7 +427,7 @@
 			//if(shouldWeUpdate == true ){
 				createBarChart(data, dataStation);
 				shouldWeUpdate = false;
-			//}
+		//	}
 			
 			
 });
