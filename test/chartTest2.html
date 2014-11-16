@@ -63,7 +63,7 @@ var pathColor = ["blue", "#66CC33", "#FF3300"]
 //var data = testData.checkIns; // a global
 d3.json("testData.JSON", function(error, data) {
     data = data.checkIns;
-    var stations = [{name: 1, values: []},{name: 2, values: []},{name: 3, values:[]}];
+    var stations = [{name: 1, values: []},{name: 2, values: []},{name: 3, values:[]},{name: 4, values:[]},{name: 5, values:[]},{name: 6, values:[]}];
 
     data.forEach(function(d) {
             var tempDate =  parseDate(d.timeDate.$date);

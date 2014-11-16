@@ -1,271 +1,259 @@
 {
-    "__v": 21,
+    "__v": 20,
     "_id": {
-        "$oid": "5466538556fe661504fb6245"
+        "$oid": "5467fe3c6808e7ff04ab26e2"
     },
     "checkIns": [
         {
             "_id": {
-                "$oid": "5466539656fe661504fb6246"
-            },
-            "playerId": 1,
-            "stationId": 1,
-            "stationInventory": 1,
-            "pickUpDropOff": true,
-            "timeDate": {
-                "$date": "2014-11-14T19:10:14.551Z"
-            }
-        },
-        {
-            "_id": {
-                "$oid": "5466539d56fe661504fb6247"
-            },
-            "playerId": 2,
-            "stationId": 2,
-            "stationInventory": 2,
-            "pickUpDropOff": true,
-            "timeDate": {
-                "$date": "2014-11-14T19:10:21.341Z"
-            }
-        },
-        {
-            "_id": {
-                "$oid": "546653a456fe661504fb6248"
-            },
-            "playerId": 3,
-            "stationId": 3,
-            "stationInventory": 1,
-            "pickUpDropOff": true,
-            "timeDate": {
-                "$date": "2014-11-14T19:10:28.075Z"
-            }
-        },
-        {
-            "_id": {
-                "$oid": "546653ae56fe661504fb6249"
-            },
-            "playerId": 1,
-            "stationId": 2,
-            "stationInventory": 2,
-            "pickUpDropOff": false,
-            "timeDate": {
-                "$date": "2014-11-14T19:10:38.376Z"
-            }
-        },
-        {
-            "_id": {
-                "$oid": "546653b856fe661504fb624a"
-            },
-            "playerId": 2,
-            "stationId": 3,
-            "stationInventory": 1,
-            "pickUpDropOff": false,
-            "timeDate": {
-                "$date": "2014-11-14T19:10:48.872Z"
-            }
-        },
-        {
-            "_id": {
-                "$oid": "546653c056fe661504fb624b"
-            },
-            "playerId": 3,
-            "stationId": 1,
-            "stationInventory": 2,
-            "pickUpDropOff": false,
-            "timeDate": {
-                "$date": "2014-11-14T19:10:56.413Z"
-            }
-        },
-        {
-            "_id": {
-                "$oid": "546653c656fe661504fb624c"
-            },
-            "playerId": 1,
-            "stationId": 3,
-            "stationInventory": 1,
-            "pickUpDropOff": true,
-            "timeDate": {
-                "$date": "2014-11-14T19:11:02.301Z"
-            }
-        },
-        {
-            "_id": {
-                "$oid": "546653d756fe661504fb624d"
+                "$oid": "5467fe526808e7ff04ab26e3"
             },
             "playerId": 2,
             "stationId": 1,
             "stationInventory": 2,
             "pickUpDropOff": true,
             "timeDate": {
-                "$date": "2014-11-14T19:11:19.092Z"
+                "$date": "2014-11-16T01:30:58.709Z"
             }
         },
         {
             "_id": {
-                "$oid": "546653ea56fe661504fb624e"
+                "$oid": "5467ff956808e7ff04ab26e4"
             },
-            "playerId": 3,
+            "playerId": 2,
+            "stationId": 3,
+            "stationInventory": 3,
+            "pickUpDropOff": false,
+            "timeDate": {
+                "$date": "2014-11-16T01:36:21.771Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "5467ffaf6808e7ff04ab26e5"
+            },
+            "playerId": 2,
+            "stationId": 4,
+            "stationInventory": 1,
+            "pickUpDropOff": true,
+            "timeDate": {
+                "$date": "2014-11-16T01:36:47.927Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "5467ffdc6808e7ff04ab26e6"
+            },
+            "playerId": 2,
+            "stationId": 3,
+            "stationInventory": 4,
+            "pickUpDropOff": false,
+            "timeDate": {
+                "$date": "2014-11-16T01:37:32.388Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "5468003e6808e7ff04ab26e7"
+            },
+            "playerId": 2,
             "stationId": 2,
             "stationInventory": 1,
             "pickUpDropOff": true,
             "timeDate": {
-                "$date": "2014-11-14T19:11:38.648Z"
+                "$date": "2014-11-16T01:39:10.726Z"
             }
         },
         {
             "_id": {
-                "$oid": "546653fe56fe661504fb624f"
+                "$oid": "5468004b6808e7ff04ab26e8"
             },
-            "playerId": 1,
+            "playerId": 2,
+            "stationId": 2,
+            "stationInventory": 2,
+            "pickUpDropOff": false,
+            "timeDate": {
+                "$date": "2014-11-16T01:39:23.856Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546800526808e7ff04ab26e9"
+            },
+            "playerId": 2,
+            "stationId": 5,
+            "stationInventory": 2,
+            "pickUpDropOff": true,
+            "timeDate": {
+                "$date": "2014-11-16T01:39:30.785Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546800616808e7ff04ab26ea"
+            },
+            "playerId": 2,
             "stationId": 1,
             "stationInventory": 3,
             "pickUpDropOff": false,
             "timeDate": {
-                "$date": "2014-11-14T19:11:58.066Z"
+                "$date": "2014-11-16T01:39:45.496Z"
             }
         },
         {
             "_id": {
-                "$oid": "5466540356fe661504fb6250"
+                "$oid": "5468006a6808e7ff04ab26eb"
+            },
+            "playerId": 2,
+            "stationId": 6,
+            "stationInventory": 2,
+            "pickUpDropOff": true,
+            "timeDate": {
+                "$date": "2014-11-16T01:39:54.541Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546800816808e7ff04ab26ec"
+            },
+            "playerId": 2,
+            "stationId": 3,
+            "stationInventory": 5,
+            "pickUpDropOff": false,
+            "timeDate": {
+                "$date": "2014-11-16T01:40:17.957Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546800846808e7ff04ab26ed"
+            },
+            "playerId": 2,
+            "stationId": 3,
+            "stationInventory": 4,
+            "pickUpDropOff": true,
+            "timeDate": {
+                "$date": "2014-11-16T01:40:20.256Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546800936808e7ff04ab26ee"
             },
             "playerId": 2,
             "stationId": 2,
-            "stationInventory": 1,
+            "stationInventory": 3,
             "pickUpDropOff": false,
             "timeDate": {
-                "$date": "2014-11-14T19:12:03.117Z"
+                "$date": "2014-11-16T01:40:35.230Z"
             }
         },
         {
             "_id": {
-                "$oid": "5466540c56fe661504fb6251"
+                "$oid": "5468009f6808e7ff04ab26ef"
             },
-            "playerId": 3,
-            "stationId": 3,
-            "stationInventory": 1,
-            "pickUpDropOff": false,
+            "playerId": 2,
+            "stationId": 1,
+            "stationInventory": 2,
+            "pickUpDropOff": true,
             "timeDate": {
-                "$date": "2014-11-14T19:12:12.124Z"
+                "$date": "2014-11-16T01:40:47.780Z"
             }
         },
         {
             "_id": {
-                "$oid": "5466544056fe661504fb6252"
+                "$oid": "546800a76808e7ff04ab26f0"
             },
-            "playerId": 1,
-            "stationId": 2,
+            "playerId": 2,
+            "stationId": 6,
+            "stationInventory": 3,
+            "pickUpDropOff": false,
+            "timeDate": {
+                "$date": "2014-11-16T01:40:55.618Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546800ad6808e7ff04ab26f1"
+            },
+            "playerId": 2,
+            "stationId": 4,
             "stationInventory": 0,
             "pickUpDropOff": true,
             "timeDate": {
-                "$date": "2014-11-14T19:13:04.006Z"
+                "$date": "2014-11-16T01:41:01.635Z"
             }
         },
         {
             "_id": {
-                "$oid": "5466544656fe661504fb6253"
-            },
-            "playerId": 2,
-            "stationId": 3,
-            "stationInventory": 1,
-            "pickUpDropOff": true,
-            "timeDate": {
-                "$date": "2014-11-14T19:13:10.042Z"
-            }
-        },
-        {
-            "_id": {
-                "$oid": "5466544d56fe661504fb6254"
-            },
-            "playerId": 3,
-            "stationId": 1,
-            "stationInventory": 2,
-            "pickUpDropOff": true,
-            "timeDate": {
-                "$date": "2014-11-14T19:13:17.526Z"
-            }
-        },
-        {
-            "_id": {
-                "$oid": "5466544e56fe661504fb6255"
-            },
-            "playerId": 3,
-            "stationId": 1,
-            "stationInventory": 2,
-            "pickUpDropOff": false,
-            "timeDate": {
-                "$date": "2014-11-14T19:13:18.578Z"
-            }
-        },
-        {
-            "_id": {
-                "$oid": "5466545156fe661504fb6256"
-            },
-            "playerId": 1,
-            "stationId": 1,
-            "stationInventory": 3,
-            "pickUpDropOff": false,
-            "timeDate": {
-                "$date": "2014-11-14T19:13:21.654Z"
-            }
-        },
-        {
-            "_id": {
-                "$oid": "5466545b56fe661504fb6257"
-            },
-            "playerId": 1,
-            "stationId": 3,
-            "stationInventory": 1,
-            "pickUpDropOff": true,
-            "timeDate": {
-                "$date": "2014-11-14T19:13:31.698Z"
-            }
-        },
-        {
-            "_id": {
-                "$oid": "5466546056fe661504fb6258"
+                "$oid": "546800bd6808e7ff04ab26f2"
             },
             "playerId": 2,
             "stationId": 1,
             "stationInventory": 3,
             "pickUpDropOff": false,
             "timeDate": {
-                "$date": "2014-11-14T19:13:36.827Z"
+                "$date": "2014-11-16T01:41:17.218Z"
             }
         },
         {
             "_id": {
-                "$oid": "5466546c56fe661504fb6259"
+                "$oid": "546800c66808e7ff04ab26f3"
             },
-            "playerId": 1,
+            "playerId": 2,
+            "stationId": 2,
+            "stationInventory": 2,
+            "pickUpDropOff": true,
+            "timeDate": {
+                "$date": "2014-11-16T01:41:26.699Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546800cc6808e7ff04ab26f4"
+            },
+            "playerId": 2,
+            "stationId": 4,
+            "stationInventory": 1,
+            "pickUpDropOff": false,
+            "timeDate": {
+                "$date": "2014-11-16T01:41:32.953Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546800ec6808e7ff04ab26f5"
+            },
+            "playerId": 2,
+            "stationId": 2,
+            "stationInventory": 1,
+            "pickUpDropOff": true,
+            "timeDate": {
+                "$date": "2014-11-16T01:42:04.253Z"
+            }
+        },
+        {
+            "_id": {
+                "$oid": "546800ee6808e7ff04ab26f6"
+            },
+            "playerId": 2,
             "stationId": 1,
             "stationInventory": 4,
             "pickUpDropOff": false,
             "timeDate": {
-                "$date": "2014-11-14T19:13:48.544Z"
+                "$date": "2014-11-16T01:42:06.958Z"
             }
         },
         {
             "_id": {
-                "$oid": "5466548c56fe661504fb625a"
+                "$oid": "546800f56808e7ff04ab26f7"
             },
             "playerId": 2,
-            "stationId": 3,
+            "stationId": 4,
             "stationInventory": 0,
             "pickUpDropOff": true,
             "timeDate": {
-                "$date": "2014-11-14T19:14:20.489Z"
-            }
-        },
-        {
-            "_id": {
-                "$oid": "5466549056fe661504fb625b"
-            },
-            "playerId": 2,
-            "stationId": 2,
-            "stationInventory": 1,
-            "pickUpDropOff": false,
-            "timeDate": {
-                "$date": "2014-11-14T19:14:24.085Z"
+                "$date": "2014-11-16T01:42:13.177Z"
             }
         }
     ]
