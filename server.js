@@ -3,9 +3,7 @@ var bodyParser = require('body-parser')
 var app = express();
 var hbs = require('express-hbs');
 app.use(bodyParser());
-app.engine('hbs', hbs.express3({
-  partialsDir: __dirname + '/views/partials'
-}));
+app.engine('hbs', hbs.express3());
 app.set('view engine', 'hbs');
 app.set('views', __dirname + '/views');
 
