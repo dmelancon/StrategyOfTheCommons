@@ -65,6 +65,7 @@ var playerSchema = Schema({
 var checkInSchema = Schema({
   playerId: Number,
   stationId: Number,
+  stationInventory: Number,
   pickUpDropOff: Boolean,
   timeDate: { type: Date, default: Date.now }
 })    
@@ -85,12 +86,15 @@ var stationBonusOn = [];
 var allPlayersData = [];           //var to locally store updated player data
 var allStationsData = [];
 var prevPlayersStation = [0,0,0,0,0,0,0,0,0,0];          //var to locally store updated station data
-var numPlayers = 10;
-var numStations = 5;
+var numPlayers = 15;
+var numStations = 6;
 //bonus set up
 for (var i = 0; i<numStations; i++){
   stationBonus.push(0);
   stationBonusOn.push(false);
+}  
+for (var i = 0; i<numPlayers; i++){
+  prevPlayersStation.push(0);
 }  
 
 var newGame = new Game();
@@ -277,7 +281,7 @@ var stationsUpdate = function(){
         thisStation.push(stationBonus[station.stationId-1]);  
         allStationsData.push(thisStation); 
         thisStation = [];      
-        if (allStationsData.length>4){
+        if (allStationsData.length==numStations){
            console.log(allStationsData);
            io.sockets.emit('stationUpdate', allStationsData);    // every station and its inventory  
         }                 
@@ -325,7 +329,7 @@ return stationsUpdate(), playersUpdate();
 
 
 //               //updateBonus every 10 secs
-setInterval(bonusUpdate, 1000);
+setInterval(bonusUpdate, 5000);
 setInterval( stationsUpdate, 500);
 setInterval( playersUpdate, 500);
 
@@ -404,6 +408,7 @@ var socketCheckIn = function(socket){
           var newCheckIn = new CheckIn();
            newCheckIn.playerId = playerId; 
            newCheckIn.stationId = stationId;
+           newCheckIn.stationInventory = station.inventory;
            if(stockChange == -1) newCheckIn.pickUpDropOff = true;
            if(stockChange == 1) newCheckIn.pickUpDropOff = false;
            newCheckIn.save();
@@ -428,19 +433,6 @@ var socketMissionComplete = function(socket){
   });
 }
 
-var findPlayerRecords = function(gameId, playerId){ 
-  Game.find({'checkIns.playerId' : playerId, '_id.$oid' : gameId }, function (err,game){
-      if (err) return handleError(err);
-      console.log(game);
-  });
-}
-
-
-findPlayerRecords("546524aaba5bee6facf14090", 1);
-
-
-
-
-// resetGame();
-// resetGame();
-// resetGame();
+resetGame();
+resetGame();
+resetGame();
