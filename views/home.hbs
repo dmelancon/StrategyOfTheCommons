@@ -227,7 +227,7 @@
 			// if there is only one stock left, alert the user that they will penalize everyone for taking it
 			} else if (myId == playerId && !playerStock[index] && checkOutStation(stationId) && !lastVisited(stationId)){
 				
-				if (missionCount<4 && Math.random()>0){     //randomly get mission
+				if (missionCount<4 && Math.random()>.5){     //randomly get mission
 					onMission = true;
 					missionCount++;
 					missionStation = Math.floor((Math.random() * 6) + 1);
