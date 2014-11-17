@@ -327,7 +327,7 @@ return stationsUpdate(), playersUpdate();
 
 
 //               //updateBonus every 10 secs
-setInterval(bonusUpdate, 5000);
+setInterval(bonusUpdate, 10000);
 setInterval( stationsUpdate, 500);
 setInterval( playersUpdate, 500);
 
