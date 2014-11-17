@@ -165,7 +165,7 @@
 
 			console.log("last station: " + lastStationVisited);
 			var index = playerIds.indexOf(parseInt(playerId));
-			var stationIndex = stationIds.indexOf(parseInt(stationId));
+			var stationIndex = stationIds.indexOf(parseInt(stationId));			
 			
 			// =============================================
 			// 3 - Dropping off a bike into a station
@@ -175,7 +175,7 @@
 			if (myId == playerId && playerStock[index] && checkInStation(stationId) && !lastVisited(stationId)){
 				if(stationStock[stationIndex] == 4){
 					var r = confirm("Returning Bike will incur system wide penalty, proceed?");
-					if (r) {
+					if (r && stationStock[stationIndex] == 4) {
 						var checkInStatus = [playerId, stationId];
 					    socket.emit ('checkInConfirm', checkInStatus);
 					    // lastStationVisited = stationId; //REMOVE THIS
@@ -195,10 +195,12 @@
 						   	}
 						   	onMission = false;
 						}
+					} else if (r && stationStock[stationIndex] != 4) {
+						alert("Sorry, try again!");
 					}
 				} else {
 					var r = confirm("Return Bike?");
-					if (r) {
+					if (r && !error) {
 						var checkInStatus = [playerId, stationId];
 					    socket.emit ('checkInConfirm', checkInStatus);
 					    // lastStationVisited = stationId; //REMOVE THIS
@@ -241,7 +243,7 @@
 				}      
 				if(stationStock[stationIndex] == 1){
 					var r = confirm("Taking bike will incur system wide penalty, proceed?");
-					if (r) {
+					if (r && stationStock[stationIndex] == 1) {
 						var checkInStatus = [playerId, stationId];
 					    socket.emit ('checkInConfirm', checkInStatus);
 					    // lastStationVisited = stationId; //REMOVE THIS
@@ -250,6 +252,8 @@
 					   	 alert("New Mission: Take Bike to Station: " + missionStation);
 					   	 console.log("New Mission!");
 					   	}
+					} else if (r && stationStock[stationIndex] != 1) {
+						alert("Sorry, try again!");
 					}
 				} else {				
 					var r = confirm("Take Bike?");
